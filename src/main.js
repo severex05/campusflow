@@ -451,7 +451,7 @@ function materiaisModal(disciplina, itens) {
       `).join('')}
       <div class="field" style="margin-top:16px">
         <label>Adicionar arquivo</label>
-        <input type="file" id="file-input" />
+        <input type="file" id="file-input" multiple />
       </div>
       <div class="modal-actions">
         <button type="button" class="btn-ghost" id="close">Fechar</button>
@@ -459,10 +459,15 @@ function materiaisModal(disciplina, itens) {
     `
     backdrop.querySelector('#close').onclick = () => backdrop.remove()
     backdrop.querySelectorAll('[data-download]').forEach((b) => b.onclick = async () => {
+      const win = window.open('', '_blank')
       try {
         const { url } = await api(`/api/materiais/${b.dataset.download}/url`)
-        window.open(url, '_blank')
-      } catch (err) { toast(err.message, true) }
+        if (win) win.location.href = url
+        else toast('Seu navegador bloqueou a abertura do arquivo. Permita pop-ups e tente de novo.', true)
+      } catch (err) {
+        if (win) win.close()
+        toast(err.message, true)
+      }
     })
     backdrop.querySelectorAll('[data-remove]').forEach((b) => b.onclick = async () => {
       if (!confirm('Excluir este arquivo?')) return
@@ -474,21 +479,24 @@ function materiaisModal(disciplina, itens) {
       } catch (err) { toast(err.message, true) }
     })
     backdrop.querySelector('#file-input').onchange = async (e) => {
-      const file = e.target.files[0]
-      if (!file) return
+      const files = Array.from(e.target.files)
+      e.target.value = ''
+      if (!files.length) return
       const userId = state.session.user.id
-      const path = `${userId}/${disciplina.id}/${Date.now()}_${file.name}`
-      try {
-        const { error: upErr } = await supabase.storage.from('materiais').upload(path, file)
-        if (upErr) throw upErr
-        const novo = await api('/api/materiais', {
-          method: 'POST',
-          body: { disciplina_id: disciplina.id, nome: file.name, storage_path: path, tipo: file.type, tamanho: file.size },
-        })
-        itens = [novo, ...itens]
-        draw()
-        renderDisciplinas()
-      } catch (err) { toast(err.message || 'Erro ao enviar arquivo', true) }
+      for (const file of files) {
+        const path = `${userId}/${disciplina.id}/${Date.now()}_${file.name}`
+        try {
+          const { error: upErr } = await supabase.storage.from('materiais').upload(path, file, { contentType: file.type || 'application/octet-stream' })
+          if (upErr) throw upErr
+          const novo = await api('/api/materiais', {
+            method: 'POST',
+            body: { disciplina_id: disciplina.id, nome: file.name, storage_path: path, tipo: file.type, tamanho: file.size },
+          })
+          itens = [novo, ...itens]
+        } catch (err) { toast(`${file.name}: ${err.message || 'erro ao enviar'}`, true) }
+      }
+      draw()
+      renderDisciplinas()
     }
   }
   draw()
