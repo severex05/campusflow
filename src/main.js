@@ -484,7 +484,13 @@ function materiaisModal(disciplina, itens) {
       if (!files.length) return
       const userId = state.session.user.id
       for (const file of files) {
-        const path = `${userId}/${disciplina.id}/${Date.now()}_${file.name}`
+        // Supabase Storage rejeita chaves com acento/espaço ("Invalid key") --
+        // sanitiza só o nome usado no caminho, mantém o nome original (`nome`)
+        // pra exibição.
+        const safeName = file.name
+          .normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-zA-Z0-9.\-_]/g, '_')
+        const path = `${userId}/${disciplina.id}/${Date.now()}_${safeName}`
         try {
           const { error: upErr } = await supabase.storage.from('materiais').upload(path, file, { contentType: file.type || 'application/octet-stream' })
           if (upErr) throw upErr
