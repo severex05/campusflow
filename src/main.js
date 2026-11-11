@@ -34,6 +34,29 @@ function icon(name, size = 18) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ''}</svg>`
 }
 
+// Markdown leve (negrito/itálico/listas/quebras) pra respostas do Tutor — escapa HTML antes de
+// aplicar as regras, nunca confiar em texto vindo da IA como HTML já seguro.
+function mdLeve(texto) {
+  const esc = (texto || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const linhas = esc.split('\n')
+  let html = ''
+  let emLista = false
+  for (const linha of linhas) {
+    const item = linha.match(/^\s*[-*]\s+(.*)/)
+    if (item) {
+      if (!emLista) { html += '<ul>'; emLista = true }
+      html += `<li>${item[1]}</li>`
+    } else {
+      if (emLista) { html += '</ul>'; emLista = false }
+      html += linha ? `<p>${linha}</p>` : ''
+    }
+  }
+  if (emLista) html += '</ul>'
+  return html
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>')
+}
+
 // ===== API helper =====
 async function api(path, { method = 'GET', body } = {}) {
   const token = state.session?.access_token
@@ -627,11 +650,7 @@ async function renderCalendario() {
       if (!confirm('Excluir este evento? Isso também remove as tarefas ligadas a ele.')) return
       try { await api(`/api/eventos/${b.dataset.del}`, { method: 'DELETE' }); renderCalendario() } catch (err) { toast(err.message, true) }
     })
-    app.querySelectorAll('[data-nota]').forEach((b) => b.onclick = async () => {
-      const nota = prompt('Qual nota você tirou nessa avaliação?')
-      if (nota === null || nota.trim() === '') return
-      try { await api(`/api/eventos/${b.dataset.nota}`, { method: 'PUT', body: { nota: Number(nota.replace(',', '.')) } }); renderCalendario() } catch (err) { toast(err.message, true) }
-    })
+    app.querySelectorAll('[data-nota]').forEach((b) => b.onclick = () => notaModal(b.dataset.nota, renderCalendario))
     app.querySelectorAll('[data-toggle-sub]').forEach((b) => b.onclick = () => {
       const id = b.dataset.toggleSub
       if (expandido.has(id)) expandido.delete(id); else expandido.add(id)
@@ -712,6 +731,30 @@ function eventoModal(disciplinas, ev, onSaved) {
     try {
       if (ev) await api(`/api/eventos/${ev.id}`, { method: 'PUT', body })
       else await api('/api/eventos', { method: 'POST', body })
+      backdrop.remove()
+      onSaved?.()
+    } catch (err) { toast(err.message, true) }
+  }
+}
+
+function notaModal(eventoId, onSaved) {
+  const backdrop = openModal(`
+    <h2>Informar nota</h2>
+    <form id="nota-form">
+      <div class="field"><label>Qual nota você tirou nessa avaliação?</label><input id="n-nota" type="number" step="0.1" required autofocus /></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancel">Cancelar</button>
+        <button type="submit" class="btn-accent">Salvar</button>
+      </div>
+    </form>
+  `)
+  backdrop.querySelector('#cancel').onclick = () => backdrop.remove()
+  backdrop.querySelector('#nota-form').onsubmit = async (e) => {
+    e.preventDefault()
+    const nota = document.getElementById('n-nota').value
+    if (nota === '') return
+    try {
+      await api(`/api/eventos/${eventoId}`, { method: 'PUT', body: { nota: Number(nota.replace(',', '.')) } })
       backdrop.remove()
       onSaved?.()
     } catch (err) { toast(err.message, true) }
@@ -1130,7 +1173,7 @@ async function renderTutorChat(id) {
       <div class="chat-window">
         <div class="chat-messages" id="chat-messages">
           ${mensagens.length === 0 ? '<div class="empty-state">Manda sua primeira dúvida aí embaixo.</div>' : mensagens.map((m) => `
-            <div class="chat-bubble ${m.role}">${m.conteudo}</div>
+            <div class="chat-bubble ${m.role}">${m.role === 'assistant' ? mdLeve(m.conteudo) : m.conteudo.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
           `).join('')}
           ${enviando ? `<div class="chat-typing">Tutor está digitando...</div>` : ''}
         </div>
