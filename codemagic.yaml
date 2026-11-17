@@ -7,6 +7,9 @@ workflows:
     environment:
       node: 22
       xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.campusflow.app
       vars:
         BUNDLE_ID: "com.campusflow.app"
         XCODE_PROJECT: "App.xcodeproj"
@@ -18,13 +21,6 @@ workflows:
         script: npm run build
       - name: Sync Capacitor iOS project
         script: npx cap sync ios
-      - name: Add certificates to keychain
-        script: keychain add-certificates
-      - name: Fetch signing files
-        script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
       - name: Set up code signing
         script: |
           xcode-project use-profiles
