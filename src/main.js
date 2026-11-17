@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { Capacitor } from '@capacitor/core'
 
 const SUPABASE_URL = 'https://sthprreysfvzkaqnwkea.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0aHBycmV5c2Z2emthcW53a2VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyMzQyNTUsImV4cCI6MjEwOTgxMDI1NX0.cCx1jDHaJqGCEPwMs88WVaOzf8rZeYs6twZhn5B706A'
@@ -8,6 +9,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 const app = document.getElementById('app')
 
 const state = { session: null, profile: null }
+let notifsAgendadas = false
 
 const DISCIPLINA_CORES = ['#E8623A', '#1B2A4A', '#2E8B57', '#D98C2B', '#6D5EF8', '#C0392B', '#2980B9']
 
@@ -95,6 +97,51 @@ function diasRestantes(iso) {
   return `Em ${dias} dias`
 }
 
+function fmtHora(iso) {
+  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
+// Lembretes nativos (iOS/Android) de provas/trabalhos — 1 dia antes do evento.
+// Roda só dentro do app empacotado (Capacitor); no navegador/PWA é um no-op silencioso.
+function hashId(str) {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0
+  return Math.abs(h) % 2147483647
+}
+
+async function agendarNotificacoesEventos() {
+  if (!Capacitor.isNativePlatform()) return
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications')
+    const perm = await LocalNotifications.requestPermissions()
+    if (perm.display !== 'granted') return
+
+    const eventos = await api('/api/eventos')
+    const pendentesAntes = await LocalNotifications.getPending()
+    if (pendentesAntes.notifications.length) {
+      await LocalNotifications.cancel({ notifications: pendentesAntes.notifications.map((n) => ({ id: n.id })) })
+    }
+
+    const agora = Date.now()
+    const notifications = []
+    for (const ev of eventos) {
+      if (ev.concluido) continue
+      const momentoEvento = new Date(ev.data_hora).getTime()
+      const momentoLembrete = momentoEvento - 24 * 60 * 60 * 1000
+      if (momentoLembrete <= agora) continue
+      notifications.push({
+        id: hashId(ev.id),
+        title: `${ev.tipo === 'prova' ? '📝' : '📌'} ${ev.titulo}`,
+        body: `${ev.disciplinas?.nome || 'Sua disciplina'} · amanhã às ${fmtHora(ev.data_hora)}`,
+        schedule: { at: new Date(momentoLembrete) },
+      })
+    }
+    if (notifications.length) await LocalNotifications.schedule({ notifications })
+  } catch {
+    // Falha silenciosa — lembrete é um extra, não pode travar o app se a API nativa falhar.
+  }
+}
+
 function toLocalInputValue(iso) {
   const d = new Date(iso)
   const off = d.getTimezoneOffset()
@@ -131,6 +178,11 @@ async function router() {
   }
 
   if (path === '/login' || path === '/onboarding') return navigate('/painel')
+
+  if (!notifsAgendadas) {
+    notifsAgendadas = true
+    agendarNotificacoesEventos()
+  }
 
   const base = '/' + path.split('/')[1]
   const view = routes[base] || renderPainel
@@ -1227,6 +1279,7 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
     }
   } else {
     state.profile = null
+    notifsAgendadas = false
   }
   router()
 })

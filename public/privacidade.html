@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Política de Privacidade — CampusFlow</title>
+<style>
+  :root { --bg:#FAF7F2; --text:#1B2A4A; --muted:#55607A; --accent:#E8623A; --border:#E3DCD2; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .updated { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  h2 { font-size: 17px; margin: 28px 0 8px; }
+  h3 { font-size: 15px; margin: 16px 0 4px; }
+  p, li { font-size: 14px; line-height: 1.6; color: var(--muted); }
+  ul { margin: 4px 0 8px; padding-left: 20px; }
+  .intro { font-size: 15px; color: var(--text); }
+  .back { display:inline-block; margin-bottom: 20px; font-size: 14px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/">← Voltar ao CampusFlow</a>
+    <h1>Política de Privacidade</h1>
+    <div class="updated">Última atualização: 17 de novembro de 2026</div>
+
+    <p class="intro">Esta política explica quais dados o CampusFlow coleta, por quê, com quem compartilha e quais direitos você tem sobre eles, em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018).</p>
+
+    <h2>1. Quem trata seus dados</h2>
+    <p>O CampusFlow é operado como um negócio individual. Para questões de privacidade ou para exercer seus direitos sobre seus dados, use o contato ao final desta página — não temos um DPO terceirizado; o fundador responde diretamente.</p>
+
+    <h2>2. Quais dados coletamos</h2>
+    <h3>Dados de cadastro</h3>
+    <ul>
+      <li>Nome e e-mail (a autenticação é feita via Supabase Auth; não armazenamos sua senha em texto puro).</li>
+      <li>Faculdade, curso e período informados no onboarding.</li>
+    </ul>
+    <h3>Dados acadêmicos que você cadastra</h3>
+    <ul>
+      <li>Disciplinas, faltas e metas de frequência;</li>
+      <li>Eventos (provas, trabalhos, seminários), notas e pesos de avaliação;</li>
+      <li>Tarefas e subtarefas vinculadas a esses eventos;</li>
+      <li>Arquivos que você envia na área de Materiais (PDFs, textos, slides) — armazenados de forma privada, visíveis só para você;</li>
+      <li>Mensagens trocadas com o Tutor (chat de dúvidas) e simulados gerados a partir do seu material.</li>
+    </ul>
+    <h3>Dados de uso e dispositivo</h3>
+    <ul>
+      <li>Caso você use o app nativo (iOS), podemos solicitar permissão para enviar notificações locais (lembretes de prova/trabalho) — essas notificações são geradas e agendadas no próprio dispositivo, não exigem um servidor de push e não compartilham dado nenhum com terceiros.</li>
+    </ul>
+
+    <h2>3. Para que usamos esses dados</h2>
+    <ul>
+      <li>Organizar seu calendário acadêmico e calcular estatísticas (faltas, nota necessária, tarefas pendentes);</li>
+      <li>Gerar simulados e respostas do Tutor a partir do material que você mesmo enviou, usando um modelo de IA (ver seção 4);</li>
+      <li>Enviar lembretes locais de provas/trabalhos, se você permitir;</li>
+      <li>Corrigir bugs e entender o uso do produto.</li>
+    </ul>
+
+    <h2>4. Compartilhamento com terceiros</h2>
+    <ul>
+      <li><strong>Supabase</strong> (banco de dados, autenticação e armazenamento de arquivos) — infraestrutura que hospeda seus dados com isolamento por usuário (Row Level Security).</li>
+      <li><strong>Anthropic (Claude API)</strong> — usada para gerar simulados e respostas do Tutor a partir do texto do material que você envia. O texto é enviado só no momento da geração, para produzir a resposta; não é usado para treinar modelos de terceiros.</li>
+      <li>Não vendemos nem compartilhamos seus dados com anunciantes.</li>
+    </ul>
+
+    <h2>5. Por quanto tempo guardamos</h2>
+    <p>Enquanto sua conta estiver ativa. Se você pedir a exclusão da conta, removemos seus dados cadastrais, acadêmicos e arquivos de Materiais associados.</p>
+
+    <h2>6. Seus direitos (LGPD)</h2>
+    <p>Você pode solicitar a qualquer momento: confirmação de que tratamos seus dados, acesso aos dados, correção, exclusão, portabilidade ou revogação de consentimento. Basta entrar em contato pelo e-mail abaixo.</p>
+
+    <h2>7. Segurança</h2>
+    <p>Seus dados acadêmicos e arquivos são isolados por usuário via políticas de Row Level Security no banco — nenhum outro usuário consegue ler seus dados, mesmo em caso de falha de outra parte do sistema.</p>
+
+    <h2>8. Contato</h2>
+    <p>Dúvidas sobre esta política ou sobre seus dados: <a href="mailto:severexseverys@gmail.com">severexseverys@gmail.com</a>.</p>
+
+    <p style="margin-top:24px">Veja também nossos <a href="/termos.html">Termos de Uso</a>.</p>
+  </div>
+</body>
+</html>
