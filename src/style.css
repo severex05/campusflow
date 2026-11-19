@@ -68,6 +68,8 @@ label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: bloc
   align-items: center;
   justify-content: center;
   padding: 24px;
+  padding-top: max(24px, env(safe-area-inset-top));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 .auth-card {
   background: var(--surface);
@@ -88,6 +90,8 @@ label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: bloc
   background: var(--primary);
   color: #fff;
   padding: 24px 16px;
+  padding-top: max(24px, env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -129,7 +133,13 @@ label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: bloc
 .sidebar .logout { color: rgba(255,255,255,0.55); font-size: 12px; cursor: pointer; }
 .sidebar .logout:hover { color: #fff; }
 
-.main-content { flex: 1; padding: 32px; max-width: 1000px; }
+.main-content {
+  flex: 1;
+  padding: 32px;
+  padding-right: max(32px, env(safe-area-inset-right));
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+  max-width: 1000px;
+}
 .page-title { font-size: 26px; font-weight: 800; margin: 0 0 4px; }
 .page-sub { color: var(--ink-soft); margin-bottom: 28px; }
 
@@ -198,7 +208,10 @@ label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: bloc
 
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(27,36,55,0.45);
-  display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+  padding: 20px;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
 }
 .modal {
   background: var(--surface); border-radius: var(--radius); padding: 28px;
@@ -208,7 +221,10 @@ label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: bloc
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
 .toast {
-  position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff;
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  right: calc(24px + env(safe-area-inset-right));
+  background: var(--primary); color: #fff;
   padding: 12px 18px; border-radius: 10px; box-shadow: var(--shadow); font-size: 14px; z-index: 100;
 }
 .toast.error { background: var(--danger); }
@@ -244,12 +260,23 @@ label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: bloc
 
 @media (max-width: 760px) {
   .app-shell { flex-direction: column; }
-  .sidebar { width: 100%; flex-direction: row; align-items: center; padding: 12px 16px; overflow-x: auto; }
+  .sidebar {
+    width: 100%; flex-direction: row; align-items: center; overflow-x: auto;
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
   .sidebar .brand { margin: 0 16px 0 0; }
   .sidebar .tagline { display: none; }
   .sidebar nav { flex-direction: row; }
   .sidebar nav a span { display: none; }
   .sidebar .user-card { display: none; }
-  .main-content { padding: 20px 16px; }
+  .main-content {
+    padding: 20px 16px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }

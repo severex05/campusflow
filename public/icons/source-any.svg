@@ -1,10 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E8623A"/>
-      <stop offset="100%" stop-color="#F2976E"/>
+    <linearGradient id="mark" x1="10%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="#F2976E"/>
+      <stop offset="100%" stop-color="#E8623A"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="96" fill="url(#g)"/>
-  <text x="256" y="320" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="220" fill="#ffffff" text-anchor="middle">CF</text>
+
+  <rect width="1024" height="1024" fill="#1B2A4A"/>
+
+  <!-- Thick "C" ring (flow mark) -->
+  <circle
+    cx="512" cy="512" r="240"
+    fill="none"
+    stroke="url(#mark)"
+    stroke-width="140"
+    stroke-linecap="round"
+    stroke-dasharray="1131 377"
+  />
+
+  <!-- Diagonal flow accent escaping the opening -->
+  <rect
+    x="586" y="206" width="72" height="230" rx="36"
+    fill="url(#mark)"
+    transform="rotate(34 622 321)"
+  />
 </svg>
